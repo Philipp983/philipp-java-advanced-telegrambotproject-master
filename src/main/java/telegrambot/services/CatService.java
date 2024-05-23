@@ -1,4 +1,4 @@
-package telegrambot.catapiclient;
+package telegrambot.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,38 +10,64 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-public class CatApiClient {
+public class CatService {
+
 	private static final String API_URL = "https://api.thecatapi.com/v1/images/search";
 	private static final String API_KEY = System.getenv("CAT_API");
 
-	private final OkHttpClient client;
+	private final OkHttpClient httpClient;
 	private final ObjectMapper objectMapper;
 
-	public CatApiClient() {
-		this.client = new OkHttpClient();
+	public CatService() {
+		this.httpClient = new OkHttpClient();
 		this.objectMapper = new ObjectMapper();
 	}
 
-	public String getCatImage() throws IOException {
-		Request request = new Request.Builder()
+	// Wofür ist die Main Methode, du hast bereits eine Main Methode in Main.java
+	public static void main(String[] args) {
+		final CatService catApiClient = new CatService();
+		try {
+			final String imageUrl = catApiClient.getImageUrl();
+			System.out.println("Cat Image URL: " + imageUrl);
+
+			// Define the path where the image will be saved
+			final String destinationPath = "catimages/cat.jpg";
+			File destinationFile = new File(destinationPath);
+
+			// Ensure the directory exists
+			destinationFile.getParentFile().mkdirs();
+
+			// Download and save the image
+			catApiClient.downloadImage(imageUrl, destinationPath);
+			System.out.println("Image saved to: " + destinationPath);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public String getImage() throws IOException {
+		final Request request = new Request.Builder()
 				.url(API_URL)
 				.header("x-api-key", API_KEY)
 				.build();
 
-		try (Response response = client.newCall(request).execute()) {
+		try (Response response = httpClient.newCall(request).execute()) {
 			if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
 			return response.body().string();
 		}
 	}
 
-	public String getCatImageUrl() throws IOException {
-		Request request = new Request.Builder()
+	public String getImageUrl() throws IOException {
+
+		// der Request wird bereits zum zweiten Mal verwendet, auslagern in eine Methode establishConnection()
+		// final Request request = establishConnection();
+		final Request request = new Request.Builder()
 				.url(API_URL)
 				.header("x-api-key", API_KEY)
 				.build();
 
-		try (Response response = client.newCall(request).execute()) {
+		try (Response response = httpClient.newCall(request).execute()) {
 			if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
 			String responseBody = response.body().string();
@@ -69,24 +95,10 @@ public class CatApiClient {
 		return file.delete();
 	}
 
-	public static void main(String[] args) {
-		CatApiClient catApiClient = new CatApiClient();
-		try {
-			String imageUrl = catApiClient.getCatImageUrl();
-			System.out.println("Cat Image URL: " + imageUrl);
 
-			// Define the path where the image will be saved
-			String destinationPath = "catimages/cat.jpg";
-			File destinationFile = new File(destinationPath);
-
-			// Ensure the directory exists
-			destinationFile.getParentFile().mkdirs();
-
-			// Download and save the image
-			catApiClient.downloadImage(imageUrl, destinationPath);
-			System.out.println("Image saved to: " + destinationPath);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	private Request establishConnection() {
+		// Connection code
+		return null;
 	}
+	
 }

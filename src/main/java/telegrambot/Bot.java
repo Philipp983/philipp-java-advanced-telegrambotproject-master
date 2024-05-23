@@ -12,9 +12,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRem
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import telegrambot.catapiclient.CatApiClient;
+
 import telegrambot.quiz.Question;
 import telegrambot.quiz.Quiz;
+import telegrambot.services.CatService;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class Bot extends TelegramLongPollingBot {
     private boolean hasphoneJoker;
     private boolean hasfiftyfifty;
     private boolean hasaudiance;
-    private CatApiClient catApiClient;
+    private CatService catApiClient;
 
     public Bot() {
         this.quiz = new Quiz(); // Initialize the quiz instance
@@ -46,7 +47,7 @@ public class Bot extends TelegramLongPollingBot {
         this.hasphoneJoker = true;
         this.hasfiftyfifty = true;
         this.hasaudiance = true;
-        this.catApiClient = new CatApiClient();
+        this.catApiClient = new CatService();
 
     }
 
@@ -61,7 +62,7 @@ public class Bot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             if (txt.equals("/startgame")) {
                 try {
-                    String imageUrl = catApiClient.getCatImageUrl();
+                    String imageUrl = catApiClient.getImage();
                     System.out.println("Cat Image URL: " + imageUrl);
 
                     // Define the path where the image will be saved
@@ -148,7 +149,7 @@ public class Bot extends TelegramLongPollingBot {
 
             } else if (txt.equals(currentQuestion.getSolution())) {
                 gamelevel++;
-                if (gamelevel >= quiz.getQuestionCategories().size()) {
+                if (gamelevel >= quiz.getCategories().size()) {
                     sendPhoto(id, "./win.png");
                     sendMenu(id, "Congratulations! You answered all questions correctly!", startOver());
                     gamestate = false;

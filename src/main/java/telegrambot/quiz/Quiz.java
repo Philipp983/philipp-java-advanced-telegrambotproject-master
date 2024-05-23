@@ -5,14 +5,16 @@ import java.util.List;
 import java.util.Random;
 
 public class Quiz {
-    private List<List<Question>> questionCategories;
+
+    private List<List<Question>> categories;
 
     public Quiz() {
-        questionCategories = new ArrayList<>();
-        initializeQuestionCategories();
+        initCategories();
     }
 
     private List<Question> initQuestions() {
+        // maybe read from json or xml file
+
         return List.of(
                 new Question("Japan", "What is the name of the popular Japanese dish made from fermented soybeans?",
                         List.of("Sushi", "Ramen", "Miso", "Tempura"), "Miso"),
@@ -74,7 +76,9 @@ public class Quiz {
                 List.of("Gray whale","Minke whale", "Sperm whale", "Humpback whale"), "Sperm whale"));
     }
 
-    private void initializeQuestionCategories() {
+    private void initCategories() {
+        this.categories = new ArrayList<>();
+
         // Question list for each category
         List<Question> category100 = new ArrayList<>();
         List<Question> category1000 = new ArrayList<>();
@@ -88,17 +92,21 @@ public class Quiz {
                     || question.getTitle().equals("Human Body") || question.getTitle().equals("Paintings")
                     || question.getTitle().equals("Fawlty Towers")) {
                 category100.add(question);
+
             } else if (question.getTitle().equals("War of the Roses") || question.getTitle().equals("Thomas the Tank Engine")
                     || question.getTitle().equals("Queen Anne") || question.getTitle().equals("Rhapsody in Blue")
                     || question.getTitle().equals("Celsius Equivalent")) {
                 category1000.add(question);
+
             } else if (question.getTitle().equals("Suffolk Punch and Hackney") || question.getTitle().equals("Shakespeare Play")
                     || question.getTitle().equals("Largest City in the USA's Largest State") || question.getTitle().equals("Meaning of 'Aristocracy'")
                     || question.getTitle().equals("Wearing a 'Peruke'")) {
                 category16000.add(question);
+
             } else if (question.getTitle().equals("Queen Elizabeth I's Birthplace") || question.getTitle().equals("Origin of the Word 'Quark'")
                     || question.getTitle().equals("Island Ruled by Britain")) {
                 category64000.add(question);
+                
             } else if (question.getTitle().equals("Pirate")
                     || question.getTitle().equals("Toothed Whale")) {
                 category1000000.add(question);
@@ -106,27 +114,32 @@ public class Quiz {
         }
 
         // Add question categories to the main list
-        questionCategories.add(category100);
-        questionCategories.add(category1000);
-        questionCategories.add(category16000);
-        questionCategories.add(category64000);
-        questionCategories.add(category1000000);
+        categories.add(category100);
+        categories.add(category1000);
+        categories.add(category16000);
+        categories.add(category64000);
+        categories.add(category1000000);
     }
 
 
-    public Question getRandomQuestion(int gameLevel) {
+    public Question getRandomQuestion(final int gameLevel) {
+        Question response = null;
+
         if (gameLevel >= 0) {
-            List<Question> category = questionCategories.get(gameLevel);
+            final List<Question> category = categories.get(gameLevel);
             Random r = new Random();
             int index = r.nextInt(category.size());
-            return category.get(index);
+            response = category.get(index);
+
         } else {
             // Handle the case when the game level is out of range
-            return null;
         }
+
+        return response;
     }
-    public List<List<Question>> getQuestionCategories() {
-        return questionCategories;
+    
+    public List<List<Question>> getCategories() {
+        return categories;
     }
 }
 
