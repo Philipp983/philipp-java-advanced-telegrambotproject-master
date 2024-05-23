@@ -59,6 +59,14 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+
+        /*
+        this method is way tooooo long. try to have method max one screensize high and the function should do whats in the name.
+        Maybe introduce a processMessage function to handle the message.equals stuff.
+        Add for each action another function to only do whats expected within the case.
+
+        */ 
+
         var msg = update.getMessage();
         var user = msg.getFrom();
         long id = user.getId();
