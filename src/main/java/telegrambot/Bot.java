@@ -222,6 +222,7 @@ public class Bot extends TelegramLongPollingBot {
         if (putCorrectFirst) {
             list[0] = correctAnswer;
             list[1] = wrongAnswer;
+
         } else {
             list[0] = wrongAnswer;
             list[1] = correctAnswer;
@@ -230,7 +231,7 @@ public class Bot extends TelegramLongPollingBot {
         sendMenu(id, currentQuestion.getText(), fiftyFiftyMenu(list));
     }
 
-    private static int getRandomNumberExcludingPrevious(int previousNumber) {
+    private static int getRandomNumberExcludingPrevious(final int previousNumber) {
         Random random = new Random();
         int newRandomNumber;
 
@@ -245,6 +246,7 @@ public class Bot extends TelegramLongPollingBot {
         SendPhoto sendPhoto = new SendPhoto();
         sendPhoto.setChatId(String.valueOf(userID));
         sendPhoto.setPhoto(new InputFile(new File(pathname)));
+        
         try {
             execute(sendPhoto);
         } catch (TelegramApiException e) {
