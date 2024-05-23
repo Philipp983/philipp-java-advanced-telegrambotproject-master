@@ -31,6 +31,7 @@ public class Bot extends TelegramLongPollingBot {
     private CatService catApiClient;
     
     private final String[] phonejoker;
+    private final static String WINNER_IMAGE = "./win.png";
     
     private int gamelevel;
     private int[] pricepool;
@@ -154,7 +155,7 @@ public class Bot extends TelegramLongPollingBot {
             } else if (txt.equals(currentQuestion.getSolution())) {
                 gamelevel++;
                 if (gamelevel >= quiz.getCategories().size()) {
-                    sendPhoto(id, "./win.png");
+                    sendPhoto(id, WINNER_IMAGE);
                     sendMenu(id, "Congratulations! You answered all questions correctly!", startOver());
                     gamestate = false;
                     gamelevel = 0;
