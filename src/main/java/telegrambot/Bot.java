@@ -179,9 +179,7 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     private void checkJokerValues() {
-        if (hasphoneJoker == false && hasfiftyfifty == false && hasaudiance == false) {
-            joker = false;
-        }
+        joker = !hasphoneJoker && !hasfiftyfifty && !hasaudiance;
     }
 
     private String generateGameLadder(int currentLevel, int[] pricePool) {
