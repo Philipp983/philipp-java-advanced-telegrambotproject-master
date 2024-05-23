@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import telegrambot.quiz.Question;
 import telegrambot.quiz.Quiz;
 import telegrambot.services.CatService;
+import telegrambot.utils.TelegramBotHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -254,12 +255,10 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    private void sendAudio(String file_id, String pathname) {
-        SendAudio sendAudio = new SendAudio();
-        sendAudio.setChatId(file_id);
-        sendAudio.setAudio(new InputFile(new File(pathname)));
+    private void sendAudio(final String file_id,final String pathname) {
+        SendAudio audio = TelegramBotHelper.prepareAudio(file_id,pathname);
         try {
-            execute(sendAudio);
+            execute(audio);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }
