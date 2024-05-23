@@ -9,8 +9,13 @@ public class TelegramBotHelper {
 
     public static SendAudio prepareAudio(final String fileId, final String pathname) {
         SendAudio audio = new SendAudio();
-        audio.setChatId(fileId);
-        audio.setAudio(new InputFile(new File(pathname)));
+        if (fileId != null && pathname != null) {
+            audio.setChatId(fileId);
+            audio.setAudio(new InputFile(new File(pathname)));
+        } else {
+            System.out.println("error");
+            // another idea is throw Error
+        }
 
         return audio;
     }
