@@ -20,4 +20,20 @@ public class Question {
         String opt = (String)this.options.stream().collect(Collectors.joining("\n"));
         return this.title + "\n" + this.text + "\n" + opt;
     }
+
+    public List<String> getOptions() {
+        return options;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public String getSolution() {
+        return solution;
+    }
+
+    public String getTitle() {
+        return title;
+    }
 }
