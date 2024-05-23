@@ -30,7 +30,7 @@ public class Bot extends TelegramLongPollingBot {
     
     private CatService catApiClient;
     
-    private String[] phonejoker;
+    private final String[] phonejoker;
     
     private int gamelevel;
     private int[] pricepool;
