@@ -40,6 +40,7 @@ public class CatService {
 			// Download and save the image
 			catApiClient.downloadImage(imageUrl, destinationPath);
 			System.out.println("Image saved to: " + destinationPath);
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

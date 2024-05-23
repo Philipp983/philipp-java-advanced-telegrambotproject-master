@@ -26,16 +26,20 @@ import java.util.Random;
 public class Bot extends TelegramLongPollingBot {
 
     private Quiz quiz;
-    private boolean gamestate;
-    private int gamelevel;
     private Question currentQuestion;
-    private int[] pricepool;
-    private boolean joker;
+    
+    private CatService catApiClient;
+    
     private String[] phonejoker;
+    
+    private int gamelevel;
+    private int[] pricepool;
+    
+    private boolean joker;
+    private boolean gamestate;
     private boolean hasphoneJoker;
     private boolean hasfiftyfifty;
     private boolean hasaudiance;
-    private CatService catApiClient;
 
     public Bot() {
         this.quiz = new Quiz(); // Initialize the quiz instance
