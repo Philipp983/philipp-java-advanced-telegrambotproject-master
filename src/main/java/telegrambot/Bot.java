@@ -187,11 +187,14 @@ public class Bot extends TelegramLongPollingBot {
         for (int i = pricePool.length - 1; i >= 0; i--) {
             if (i == currentLevel) {
                 ladder.append(">> ");
+           
             } else {
                 ladder.append("   ");
             }
-            ladder.append(String.format("%,d€", pricePool[i])).append("\n");
+
+            ladder.append(String.format("%,d€", pricePool[i])).append("\n"); // sehr schön, String.format wo immer möglich
         }
+
         return ladder.toString();
     }
 
