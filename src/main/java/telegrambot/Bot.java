@@ -96,11 +96,11 @@ public class Bot extends TelegramLongPollingBot {
                 sendMenu(id, "Hello to the game\n\nWho wants to be a millionaire!\n\n " +
                         "We start with the 100€ question", createWelcomingMenu());
                 // This Method sets the game into its initial state
-                setGameStateToInitialValues();
+                resetGame();
             } else if (txt.equals("Lets start again!")) {
                 sendMenu(id, "Hello to the game \n\nWho wants to be a millionaire!\n\n " +
                         "We start with the 100€ question", createWelcomingMenu());
-                setGameStateToInitialValues();
+                resetGame();
             }
             //sendMessage(id, "I don't understand you");
 
@@ -198,7 +198,7 @@ public class Bot extends TelegramLongPollingBot {
         return ladder.toString();
     }
 
-    private void setGameStateToInitialValues() {
+    private void resetGame() {
         gamelevel = 0;
         gamestate = true;
         joker = true;
