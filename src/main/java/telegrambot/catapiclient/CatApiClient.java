@@ -3,6 +3,7 @@ package telegrambot.catapiclient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
+import telegrambot.configuration.Config;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,7 +23,7 @@ public class CatApiClient {
 		this.objectMapper = new ObjectMapper();
 	}
 
-	public String getCatImage() throws IOException {
+/*	public String getCatImage() throws IOException {
 		Request request = new Request.Builder()
 				.url(API_URL)
 				.header("x-api-key", API_KEY)
@@ -33,9 +34,14 @@ public class CatApiClient {
 
 			return response.body().string();
 		}
+	}*/
+
+	public boolean createCatImage() throws IOException {
+		String url = getCatImageUrl();
+		return downloadImage(url, Config.getProperty("cat_image.path"));
 	}
 
-	public String getCatImageUrl() throws IOException {
+	private String getCatImageUrl() throws IOException {
 		Request request = new Request.Builder()
 				.url(API_URL)
 				.header("x-api-key", API_KEY)
@@ -50,8 +56,13 @@ public class CatApiClient {
 		}
 	}
 
-	public boolean downloadImage(String imageUrl, String destinationFile) throws IOException {
+	private boolean downloadImage(String imageUrl, String destinationFile) throws IOException {
 		URL url = new URL(imageUrl);
+		// Define the path where the image will be saved
+		File checkDestinationFile = new File(Config.getProperty("cat_image.path"));
+		// Ensure the directory exists
+		checkDestinationFile.getParentFile().mkdirs();
+
 		try (InputStream in = url.openStream();
 			 FileOutputStream out = new FileOutputStream(destinationFile)) {
 

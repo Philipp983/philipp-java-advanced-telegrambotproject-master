@@ -1,10 +1,19 @@
 package telegrambot;
 
+import org.telegram.telegrambots.meta.api.methods.send.SendAudio;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -15,10 +24,11 @@ import telegrambot.quiz.Question;
 import telegrambot.quiz.Quiz;
 import telegrambot.telegram_ui.TelegramMenuUi;
 
-import java.awt.*;
+//import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Bot extends TelegramLongPollingBot {
@@ -32,6 +42,7 @@ public class Bot extends TelegramLongPollingBot {
 	private static final String LOSE_GAME_NEUTRAL_PATH = Config.getProperty("quiz.image.game_over.path");
 
 	private Quiz quiz;
+	private boolean isContaced;
 	private boolean gamestate;
 	private int gamelevel;
 	private Question currentQuestion;
@@ -48,6 +59,7 @@ public class Bot extends TelegramLongPollingBot {
 
 	public Bot() {
 		this.quiz = new Quiz(); // Initialize the quiz instance
+		this.isContaced = false;
 		this.gamestate = false; // Initialize the gamestate to false
 		this.gamelevel = 0; // Initialize the gamelevel to 0
 		this.pricepool = new int[]{100, 1000, 16000, 64000, 1000000};
@@ -73,31 +85,21 @@ public class Bot extends TelegramLongPollingBot {
 		long id = user.getId();
 		var txt = msg.getText();
 
-//		long chat_id2 = update.getMessage().getChatId();
-
-/*		String CAT_IMAGE_PATH = Config.getProperty("cat_image.path");
-		String startGameImagePath = Config.getProperty("quiz.image.start_game.path");
-		String startGameSoundPath = Config.getProperty("quiz.sound.start.path");
-		String audienceJokerPath = Config.getProperty("quiz.video.audience.path");
-		String winGameImagePath = Config.getProperty("quiz.image.win_game.path");
-		String loseGameHaroldPath = Config.getProperty("quiz.image.hide_the_pain.path");
-		String loseGameNeutralPath = Config.getProperty("quiz.image.game_over.path");*/
+		if (update.hasMessage() && !isContaced) {
+			menu.sendInlineKeyboard2(id, "Choose an option:");
+			isContaced = true;
+		}
 
 		if (update.hasMessage() && update.getMessage().hasText()) {
+
+
 			if (txt.equals("/startgame")) {
+
+
+
 				try {
-					String imageUrl = catApiClient.getCatImageUrl();
-
-					System.out.println("Cat Image URL: " + imageUrl);
-					// Define the path where the image will be saved
-					File destinationFile = new File(CAT_IMAGE_PATH);
-
-					// Ensure the directory exists
-					destinationFile.getParentFile().mkdirs();
-
 					// Download and save the image
-					while (!catApiClient.downloadImage(imageUrl, CAT_IMAGE_PATH)) ;
-
+					while (!catApiClient.createCatImage()) ;
 					System.out.println("Image saved to: " + CAT_IMAGE_PATH);
 					sendPhoto(id, CAT_IMAGE_PATH);
 					catApiClient.deleteImage(CAT_IMAGE_PATH);
@@ -201,6 +203,56 @@ public class Bot extends TelegramLongPollingBot {
 
 		}
 	}
+
+/*
+	private void sendInlineKeyboard(long chatId, String text) {
+		// Create inline keyboard markup
+		InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
+		// Create list of keyboard rows
+		List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+
+		// First row
+		List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
+		InlineKeyboardButton button1 = new InlineKeyboardButton();
+		button1.setText("Play: Who wants to be a millionaire");
+		button1.setCallbackData("game");
+		rowInline1.add(button1);
+
+		// Second row
+		List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
+		InlineKeyboardButton button2 = new InlineKeyboardButton();
+		button2.setText("Use: Weather API");
+		button2.setCallbackData("weather_api");
+		rowInline2.add(button2);
+
+		List<InlineKeyboardButton> rowInline3 = new ArrayList<>();
+		InlineKeyboardButton button3 = new InlineKeyboardButton();
+		button3.setText("Get a Cat Image!");
+		button3.setCallbackData("cat_image");
+		rowInline3.add(button3);
+
+		// Add rows to the list
+		rowsInline.add(rowInline1);
+		rowsInline.add(rowInline2);
+		rowsInline.add(rowInline3);
+
+		// Set the keyboard to the markup
+		inlineKeyboardMarkup.setKeyboard(rowsInline);
+
+		// Create message
+		SendMessage message = new SendMessage();
+		message.setChatId(chatId);
+		message.setText(text);
+		message.setReplyMarkup(inlineKeyboardMarkup);
+
+		try {
+			execute(message);
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
+*/
 
 	private void checkJokerValues() {
 		if (hasphoneJoker == false && hasfiftyfifty == false && hasaudiance == false) {

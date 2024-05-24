@@ -14,16 +14,17 @@ public class MultiUserBot extends TelegramLongPollingBot {
     }
 
     public void onUpdateReceived(Update update) {
-        Long chatId = update.getMessage().getChatId();
-        Bot bot = userBots.get(chatId);
+            Long chatId = update.getMessage().getChatId();
+            Bot bot = userBots.get(chatId);
 
-        if (bot == null) {
-            bot = new Bot();
-            userBots.put(chatId, bot);
+            if (bot == null) {
+                bot = new Bot();
+                userBots.put(chatId, bot);
+            }
+
+            bot.onUpdateReceived(update);
         }
 
-        bot.onUpdateReceived(update);
-    }
     @Override
     public String getBotUsername() {
         return System.getenv("BOT_USERNAME");
@@ -33,7 +34,4 @@ public class MultiUserBot extends TelegramLongPollingBot {
     public String getBotToken() {
         return System.getenv("BOT_TOKEN");
     }
-
-
-
 }

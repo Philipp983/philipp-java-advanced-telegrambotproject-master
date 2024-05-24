@@ -45,6 +45,26 @@ public class MillionaireGame implements IRun {
 //		this.catApiClient = new CatApiClient();
 	}
 
+
+
+	// Getter
+
+	public boolean isPhoneJokerAvailable() {
+		return hasphoneJoker;
+	}
+
+	public boolean isFiftyFiftyJokerAvailable() {
+		return hasfiftyfifty;
+	}
+
+	public boolean isAudianceJokerAvailable() {
+		return hasaudiance;
+	}
+
+	public boolean isAnyJokerAvailable(){
+		return joker;
+	}
+
 	@Override
 	public void run() {
 
