@@ -79,17 +79,20 @@ public class WeatherApiClient {
 
 			double feelTemp = responseData.get("main").get("feels_like").asDouble();
 			double humidity = responseData.get("main").get("humidity").asDouble();
+			double temp_min = responseData.get("main").get("temp_min").asDouble();
+			double temp_max = responseData.get("main").get("temp_max").asDouble();
 
 
 			StringBuilder builder = new StringBuilder();
 
 			builder.append("Weather for the City of " + city);
 			builder.append(" with country code: " + countryCode);
-			builder.append(" in the state of " + coordinates[2]);
+			builder.append(" in the state of: " + coordinates[2]);
 			builder.append("\nDescription: " + description);
 			builder.append("\nTemperature: " + temperature + "°C");
 			builder.append("\nWhich feels like: " + feelTemp + "°C");
-			builder.append("\nHumidity: " + humidity + " %");
+			builder.append("\nCurrent min/max: " + temp_min + "/" + temp_max + "°C");
+			builder.append("\nHumidity: " + humidity + "%");
 
 			return builder.toString();
 		}
@@ -121,7 +124,9 @@ public class WeatherApiClient {
 				JsonNode location = responseData.get(0);  // Get the first element in the array
 				String latitude = location.get("lat").toString();
 				String longitude = location.get("lon").toString();
-				String state = location.get("state").toString();
+
+				// Sometimes
+				String state = location.get("state") == null ? "Weather API couldn't find the information" : location.get("state").toString();
 				return new String[]{latitude, longitude,state};
 			} else {
 				String[] empty = new String[1];
@@ -134,7 +139,7 @@ public class WeatherApiClient {
 
 	public static void main(String[] args) throws IOException {
 		System.out.println(getHannoverWeather());
-		System.out.println(getWeatherFromAnyCity("London"));
+		System.out.println(getWeatherFromAnyCity("Hamburg"));
 
 	}
 }
