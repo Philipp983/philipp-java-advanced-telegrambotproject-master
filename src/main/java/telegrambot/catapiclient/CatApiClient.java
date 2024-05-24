@@ -69,7 +69,8 @@ public class CatApiClient {
 		return file.delete();
 	}
 
-	public static void main(String[] args) {
+	//For testing the api
+/*	public static void main(String[] args) {
 		CatApiClient catApiClient = new CatApiClient();
 		try {
 			String imageUrl = catApiClient.getCatImageUrl();
@@ -88,5 +89,5 @@ public class CatApiClient {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 }
