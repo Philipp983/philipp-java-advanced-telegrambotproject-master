@@ -80,17 +80,36 @@ public class Bot extends TelegramLongPollingBot {
 
 	@Override
 	public void onUpdateReceived(Update update) {
-		var msg = update.getMessage();
-		var user = msg.getFrom();
-		long id = user.getId();
-		var txt = msg.getText();
+
+/*		long id = update.getMessage().getFrom().getId();
+		String txt = update.getMessage().getText();
+		String othertxt = update.getCallbackQuery().toString();*/
+
+		long id = 0;
+		String txt = "";
+
+		if (update.hasMessage() && update.getMessage().hasText()) {
+			id = update.getMessage().getChatId();
+			txt = update.getMessage().getText();
+			// Handle message interactions
+			// For example, process text messages
+		} else if (update.hasCallbackQuery()) {
+			txt = update.getCallbackQuery().getData();
+			System.out.println(txt);
+			id = update.getCallbackQuery().getMessage().getChatId();
+			// Handle callback interactions
+			// For example, process button presses based on callback data
+		}
 
 		if (update.hasMessage() && !isContaced) {
 			menu.sendInlineKeyboard2(id, "Choose an option:");
+			System.out.println(txt);
 			isContaced = true;
 		}
 
-		if (update.hasMessage() && update.getMessage().hasText()) {
+
+
+		if (update.hasMessage() && update.getMessage().hasText() || update.hasCallbackQuery()) {
 
 
 			if (txt.equals("/startgame")) {
@@ -101,7 +120,7 @@ public class Bot extends TelegramLongPollingBot {
 					// Download and save the image
 					while (!catApiClient.createCatImage()) ;
 					System.out.println("Image saved to: " + CAT_IMAGE_PATH);
-					sendPhoto(id, CAT_IMAGE_PATH);
+					menu.sendPhoto(id, CAT_IMAGE_PATH);
 					catApiClient.deleteImage(CAT_IMAGE_PATH);
 
 				} catch (IOException e) {
@@ -110,14 +129,14 @@ public class Bot extends TelegramLongPollingBot {
 
 
 				System.out.println(Config.getProperty("quiz.image.start_game.path"));
-				sendPhoto(id, START_GAME_IMAGE_PATH);
-				sendAudio(String.valueOf(id), START_GAME_SOUND_PATH);
-				sendMenu(id, "Hello to the game\n\nWho wants to be a millionaire!\n\n " +
+				menu.sendPhoto(id, START_GAME_IMAGE_PATH);
+				menu.sendAudio(String.valueOf(id), START_GAME_SOUND_PATH);
+				menu.sendMenu(id, "Hello to the game\n\nWho wants to be a millionaire!\n\n " +
 						"We start with the 100€ question", createWelcomingMenu());
 				// This Method sets the game into its initial state
 				setGameStateToInitialValues();
 			} else if (txt.equals("Lets start again!")) {
-				sendMenu(id, "Hello to the game \n\nWho wants to be a millionaire!\n\n " +
+				menu.sendMenu(id, "Hello to the game \n\nWho wants to be a millionaire!\n\n " +
 						"We start with the 100€ question", createWelcomingMenu());
 				setGameStateToInitialValues();
 			}

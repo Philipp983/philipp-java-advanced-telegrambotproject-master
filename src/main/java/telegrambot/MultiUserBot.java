@@ -14,12 +14,25 @@ public class MultiUserBot extends TelegramLongPollingBot {
     }
 
     public void onUpdateReceived(Update update) {
-            Long chatId = update.getMessage().getChatId();
-            Bot bot = userBots.get(chatId);
+        long id = 0;
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            id = update.getMessage().getChatId();
+            String text = update.getMessage().getText();
+            // Handle message interactions
+            // For example, process text messages
+        } else if (update.hasCallbackQuery()) {
+            String callbackData = update.getCallbackQuery().getData();
+            id = update.getCallbackQuery().getMessage().getChatId();
+            // Handle callback interactions
+            // For example, process button presses based on callback data
+        }
+//            Long chatId = update.getMessage().getChatId();
+//            Bot bot2 = userBots.get(chatId);
+            Bot bot = userBots.get(id);
 
             if (bot == null) {
                 bot = new Bot();
-                userBots.put(chatId, bot);
+                userBots.put(id, bot);
             }
 
             bot.onUpdateReceived(update);

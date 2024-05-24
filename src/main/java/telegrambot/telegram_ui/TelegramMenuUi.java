@@ -61,7 +61,7 @@ public class TelegramMenuUi {
 		return rowInline;
 	}
 
-	public void sendInlineKeyboard2(long chatId, String text) {
+	public boolean sendInlineKeyboard2(long chatId, String text) {
 		// Create inline keyboard markup
 		InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
@@ -104,8 +104,10 @@ public class TelegramMenuUi {
 
 		try {
 			telegramLongPollingBot.execute(message);
+			return true;
 		} catch (TelegramApiException e) {
 			e.printStackTrace();
+			return false;
 		}
 	}
 
