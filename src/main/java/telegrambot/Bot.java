@@ -1,11 +1,7 @@
 package telegrambot;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendAudio;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
@@ -14,13 +10,15 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import telegrambot.catapiclient.CatApiClient;
 import telegrambot.configuration.Config;
+import telegrambot.quiz.MillionaireGame;
 import telegrambot.quiz.Question;
 import telegrambot.quiz.Quiz;
+import telegrambot.telegram_ui.TelegramMenuUi;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 public class Bot extends TelegramLongPollingBot {
@@ -44,6 +42,9 @@ public class Bot extends TelegramLongPollingBot {
 	private boolean hasfiftyfifty;
 	private boolean hasaudiance;
 	private CatApiClient catApiClient;
+	private TelegramMenuUi menu;
+	private MillionaireGame millionaireGame;
+
 
 	public Bot() {
 		this.quiz = new Quiz(); // Initialize the quiz instance
@@ -61,6 +62,7 @@ public class Bot extends TelegramLongPollingBot {
 		this.hasfiftyfifty = true;
 		this.hasaudiance = true;
 		this.catApiClient = new CatApiClient();
+		this.menu = new TelegramMenuUi(this);
 
 	}
 
@@ -69,9 +71,10 @@ public class Bot extends TelegramLongPollingBot {
 		var msg = update.getMessage();
 		var user = msg.getFrom();
 		long id = user.getId();
-		long chat_id2 = update.getMessage().getChatId();
 		var txt = msg.getText();
-		
+
+//		long chat_id2 = update.getMessage().getChatId();
+
 /*		String CAT_IMAGE_PATH = Config.getProperty("cat_image.path");
 		String startGameImagePath = Config.getProperty("quiz.image.start_game.path");
 		String startGameSoundPath = Config.getProperty("quiz.sound.start.path");
@@ -261,6 +264,7 @@ public class Bot extends TelegramLongPollingBot {
 		return newRandomNumber;
 	}
 
+
 	private void sendPhoto(long userID, String pathname) {
 		SendPhoto sendPhoto = new SendPhoto();
 		sendPhoto.setChatId(String.valueOf(userID));
@@ -271,7 +275,6 @@ public class Bot extends TelegramLongPollingBot {
 			throw new RuntimeException(e);
 		}
 	}
-
 	private void sendAudio(String file_id, String pathname) {
 		SendAudio sendAudio = new SendAudio();
 		sendAudio.setChatId(file_id);
