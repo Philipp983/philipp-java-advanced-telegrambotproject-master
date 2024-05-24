@@ -76,6 +76,9 @@ public class WeatherApiClient {
 			String city = responseData.get("name").toString().replaceAll("\"", "").trim();
 			String countryCode = responseData.get("sys").get("country").toString().replaceAll("\"", "").trim();
 			String description = responseData.get("weather").get(0).get("description").toString().replaceAll("\"", "").trim();
+			String windSpeed = responseData.get("wind").get("speed").toString().replaceAll("\"", "").trim();
+
+
 
 			double feelTemp = responseData.get("main").get("feels_like").asDouble();
 			double humidity = responseData.get("main").get("humidity").asDouble();
@@ -90,6 +93,7 @@ public class WeatherApiClient {
 			builder.append(" in the state of: " + coordinates[2]);
 			builder.append("\nDescription: " + description);
 			builder.append("\nTemperature: " + temperature + "°C");
+			builder.append("\nWindspeed: " + windSpeed + " m/s");
 			builder.append("\nWhich feels like: " + feelTemp + "°C");
 			builder.append("\nCurrent min/max: " + temp_min + "/" + temp_max + "°C");
 			builder.append("\nHumidity: " + humidity + "%");
