@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import telegrambot.quiz.MillionaireGame;
+import telegrambot.quiz.Millionaire;
 import telegrambot.quiz.Question;
 
 import java.io.File;
@@ -23,15 +23,16 @@ import java.util.List;
 public class TelegramMenuUi {
 
 	private TelegramLongPollingBot telegramLongPollingBot;
-	private MillionaireGame millionaireGame;
+	private Millionaire millionaireGame;
 
-	public TelegramMenuUi(TelegramLongPollingBot telegramLongPollingBot) {
+	public TelegramMenuUi(TelegramLongPollingBot telegramLongPollingBot, Millionaire millionaireGame) {
 		this.telegramLongPollingBot = telegramLongPollingBot;
-	}
-
-	public void setMillionaireGame(MillionaireGame millionaireGame) {
 		this.millionaireGame = millionaireGame;
 	}
+
+/*	public void setMillionaireGame(Millionaire millionaireGame) {
+		this.millionaireGame = millionaireGame;
+	}*/
 
 	public void sendInlineKeyboard(long chatId, String text) {
 		InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -79,19 +80,54 @@ public class TelegramMenuUi {
 		List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
 		InlineKeyboardButton button2 = new InlineKeyboardButton();
 		button2.setText("Use: Weather API");
-		button2.setCallbackData("weather_api");
+		button2.setCallbackData("/weather_api");
 		rowInline2.add(button2);
 
 		List<InlineKeyboardButton> rowInline3 = new ArrayList<>();
 		InlineKeyboardButton button3 = new InlineKeyboardButton();
 		button3.setText("Get a Cat Image!");
-		button3.setCallbackData("cat_image");
+		button3.setCallbackData("/cat_image");
 		rowInline3.add(button3);
 
 		// Add rows to the list
 		rowsInline.add(rowInline1);
 		rowsInline.add(rowInline2);
 		rowsInline.add(rowInline3);
+
+		// Set the keyboard to the markup
+		inlineKeyboardMarkup.setKeyboard(rowsInline);
+
+		// Create message
+		SendMessage message = new SendMessage();
+		message.setChatId(chatId);
+		message.setText(text);
+		message.setReplyMarkup(inlineKeyboardMarkup);
+
+		try {
+			telegramLongPollingBot.execute(message);
+			return true;
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	public boolean sendInlineKeyboard3(long chatId, String text) {
+		// Create inline keyboard markup
+		InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
+		// Create list of keyboard rows
+		List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+
+		// First row
+		List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
+		InlineKeyboardButton button1 = new InlineKeyboardButton();
+		button1.setText("Go Back to Menu");
+		button1.setCallbackData("/quit");
+		rowInline1.add(button1);
+
+		// Add rows to the list
+		rowsInline.add(rowInline1);
+
 
 		// Set the keyboard to the markup
 		inlineKeyboardMarkup.setKeyboard(rowsInline);
@@ -155,6 +191,28 @@ public class TelegramMenuUi {
 			throw new RuntimeException(e);
 		}
 	}
+	public void sendMenuWithBack(Long who, String txt, ReplyKeyboardMarkup buttons) {
+		SendMessage sm = SendMessage.builder().chatId(who.toString())
+				.parseMode("HTML").text(txt)
+				.replyMarkup(buttons != null ? buttons : new ReplyKeyboardRemove()).build();
+
+		try {
+			telegramLongPollingBot.execute(sm);
+		} catch (TelegramApiException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	public void sendText(Long who, String txt) {
+		SendMessage sm = SendMessage.builder().chatId(who.toString())
+				.parseMode("HTML").text(txt)
+				.build();
+
+		try {
+			telegramLongPollingBot.execute(sm);
+		} catch (TelegramApiException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	public void sendMenuWithLadder(Long who, String txt, String ladder, ReplyKeyboardMarkup buttons) {
 		String fullMessage = ladder + "\n\n" + txt;
@@ -178,6 +236,19 @@ public class TelegramMenuUi {
 		KeyboardRow row = new KeyboardRow();
 
 		row.add(new KeyboardButton("Lets start again!"));
+		keyboard.add(row);
+		keyboardMarkup.setKeyboard(keyboard);
+		return keyboardMarkup;
+	}
+	public ReplyKeyboardMarkup startOverAndBackToMenu() {
+		ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+		keyboardMarkup.setResizeKeyboard(true);
+		List<KeyboardRow> keyboard = new ArrayList<>();
+
+		KeyboardRow row = new KeyboardRow();
+
+		row.add(new KeyboardButton("Lets start again!"));
+		row.add(new KeyboardButton("Back to menu"));
 		keyboard.add(row);
 		keyboardMarkup.setKeyboard(keyboard);
 		return keyboardMarkup;
@@ -257,9 +328,4 @@ public class TelegramMenuUi {
 		keyboardMarkup.setKeyboard(keyboard);
 		return keyboardMarkup;
 	}
-
-
-
-
-
 }

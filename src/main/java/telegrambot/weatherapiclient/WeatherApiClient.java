@@ -23,7 +23,7 @@ public class WeatherApiClient {
 //		this.objectMapper = new ObjectMapper();
 	}
 
-	public static String getHannoverWeather() throws IOException {
+	private static String getHannoverWeather() throws IOException {
 		String url = String.format("%s?lat=%s&lon=%s&appid=%s", API_URL, LATITUDE, LONGITUDE, API_KEY);
 		Request request = new Request.Builder()
 				.url(url)
@@ -53,7 +53,7 @@ public class WeatherApiClient {
 
 	}
 
-	public static String getWeatherFromAnyCity(String... cityAndOptionalCodes) throws IOException {
+	public String getWeatherFromAnyCity(String... cityAndOptionalCodes) throws IOException {
 		String[] coordinates = getCoordinatesFromCity(cityAndOptionalCodes);
 		if (coordinates.length == 1) {
 			return "Couldn't find the city, please try again";
@@ -77,9 +77,6 @@ public class WeatherApiClient {
 			String countryCode = responseData.get("sys").get("country").toString().replaceAll("\"", "").trim();
 			String description = responseData.get("weather").get(0).get("description").toString().replaceAll("\"", "").trim();
 			String windSpeed = responseData.get("wind").get("speed").toString().replaceAll("\"", "").trim();
-
-
-
 			double feelTemp = responseData.get("main").get("feels_like").asDouble();
 			double humidity = responseData.get("main").get("humidity").asDouble();
 			double temp_min = responseData.get("main").get("temp_min").asDouble();
@@ -126,12 +123,13 @@ public class WeatherApiClient {
 
 			if (responseData.isArray() && responseData.size() > 0) {
 				JsonNode location = responseData.get(0);  // Get the first element in the array
+
 				String latitude = location.get("lat").toString();
 				String longitude = location.get("lon").toString();
 
 				// Sometimes
 				String state = location.get("state") == null ? "Weather API couldn't find the information" : location.get("state").toString();
-				return new String[]{latitude, longitude,state};
+				return new String[]{latitude, longitude, state};
 			} else {
 				String[] empty = new String[1];
 				return empty;
@@ -143,7 +141,7 @@ public class WeatherApiClient {
 
 	public static void main(String[] args) throws IOException {
 		System.out.println(getHannoverWeather());
-		System.out.println(getWeatherFromAnyCity("Hamburg"));
+//		System.out.println(getWeatherFromAnyCity("Hamburg"));
 
 	}
 }

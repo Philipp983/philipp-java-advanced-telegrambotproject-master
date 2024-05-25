@@ -1,3 +1,4 @@
+/*
 package telegrambot;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendAudio;
@@ -81,9 +82,11 @@ public class Bot extends TelegramLongPollingBot {
 	@Override
 	public void onUpdateReceived(Update update) {
 
+*/
 /*		long id = update.getMessage().getFrom().getId();
 		String txt = update.getMessage().getText();
-		String othertxt = update.getCallbackQuery().toString();*/
+		String othertxt = update.getCallbackQuery().toString();*//*
+
 
 		long id = 0;
 		String txt = "";
@@ -223,6 +226,7 @@ public class Bot extends TelegramLongPollingBot {
 		}
 	}
 
+*/
 /*
 	private void sendInlineKeyboard(long chatId, String text) {
 		// Create inline keyboard markup
@@ -271,7 +275,8 @@ public class Bot extends TelegramLongPollingBot {
 			e.printStackTrace();
 		}
 	}
-*/
+*//*
+
 
 	private void checkJokerValues() {
 		if (hasphoneJoker == false && hasfiftyfifty == false && hasaudiance == false) {
@@ -482,7 +487,6 @@ public class Bot extends TelegramLongPollingBot {
 		return keyboardMarkup;
 	}
 
-
 	@Override
 	public String getBotUsername() {
 		return System.getenv("BOT_USERNAME");
@@ -493,6 +497,6 @@ public class Bot extends TelegramLongPollingBot {
 		return System.getenv("BOT_TOKEN");
 	}
 
-
 }
 
+*/

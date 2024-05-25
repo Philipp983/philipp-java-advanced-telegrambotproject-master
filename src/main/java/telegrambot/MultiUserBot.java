@@ -8,7 +8,7 @@ import java.util.Map;
 
 
 public class MultiUserBot extends TelegramLongPollingBot {
-    private Map<Long, Bot> userBots;
+    private Map<Long, Bot2> userBots;
     public MultiUserBot() {
         userBots = new HashMap<>();
     }
@@ -28,10 +28,10 @@ public class MultiUserBot extends TelegramLongPollingBot {
         }
 //            Long chatId = update.getMessage().getChatId();
 //            Bot bot2 = userBots.get(chatId);
-            Bot bot = userBots.get(id);
+            Bot2 bot = userBots.get(id);
 
             if (bot == null) {
-                bot = new Bot();
+                bot = new Bot2();
                 userBots.put(id, bot);
             }
 
