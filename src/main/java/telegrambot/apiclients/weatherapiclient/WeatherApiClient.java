@@ -1,4 +1,4 @@
-package telegrambot.weatherapiclient;
+package telegrambot.apiclients.weatherapiclient;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

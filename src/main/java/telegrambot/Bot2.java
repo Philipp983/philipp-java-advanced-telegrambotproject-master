@@ -6,7 +6,7 @@ import telegrambot.catapiclient.CatApiClient;
 import telegrambot.configuration.Config;
 import telegrambot.quiz.Millionaire;
 import telegrambot.telegram_ui.TelegramMenuUi;
-import telegrambot.weatherapiclient.WeatherApiClient;
+import telegrambot.apiclients.weatherapiclient.WeatherApiClient;
 import java.io.IOException;
 
 public class Bot2 extends TelegramLongPollingBot {
