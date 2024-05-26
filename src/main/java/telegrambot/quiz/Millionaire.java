@@ -1,12 +1,15 @@
 package telegrambot.quiz;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import telegrambot.Bot2;
+import telegrambot.IBotCommand;
 import telegrambot.configuration.Config;
 import telegrambot.telegram_ui.TelegramMenuUi;
 
+import java.io.IOException;
 import java.util.Random;
 
-public class Millionaire {
+public class Millionaire implements IBotCommand {
 	private static final String START_GAME_IMAGE_PATH = Config.getProperty("quiz.image.start_game.path");
 	private static final String START_GAME_SOUND_PATH = Config.getProperty("quiz.sound.start.path");
 	private static final String AUDIENCE_JOKER_PATH = Config.getProperty("quiz.video.audience.path");
@@ -62,8 +65,6 @@ public class Millionaire {
 			if (txt.equals("Lets start with the first question") || txt.equals("Lets start again!") || txt.equals("/startgame")) {
 				currentQuestion = quiz.getRandomQuestion(gamelevel);
 				menu.sendMenuWithLadder(id, currentQuestion.getText(), generateGameLadder(gamelevel, pricepool), menu.createPlayMenu(currentQuestion));
-//                sendMenu(id, currentQuestion.getText(), createPlayMenu(currentQuestion));
-
 			} else if (txt.equals("Joker")) {
 
 				menu.sendMenu(id, currentQuestion.getText(), menu.jokerMenu());
@@ -102,6 +103,12 @@ public class Millionaire {
 				hasaudiance = false;
 
 				menu.sendVideo(Long.toString(id), AUDIENCE_JOKER_PATH);
+				try{
+					Thread.sleep(500);
+				} catch (Exception e) {
+					e.printStackTrace();
+
+				}
 				applyfiftyFiftyLogicAndSendMenu(id);
 //                sendMenu(id, currentQuestion.getText(), createPlayMenu(currentQuestion));
 
@@ -219,5 +226,10 @@ private void checkJokerValues() {
 
 	public boolean isAnyJokerAvailable() {
 		return joker;
+	}
+
+	@Override
+	public void execute(long chatId, String input, Bot2 bot) throws IOException {
+		bot.activateFunctionality("playMillionaire");
 	}
 }

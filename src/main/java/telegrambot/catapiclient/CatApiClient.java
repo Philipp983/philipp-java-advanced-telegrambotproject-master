@@ -3,6 +3,8 @@ package telegrambot.catapiclient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
+import telegrambot.Bot2;
+import telegrambot.IBotCommand;
 import telegrambot.configuration.Config;
 
 import java.io.File;
@@ -11,7 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-public class CatApiClient {
+public class CatApiClient implements IBotCommand {
 	private static final String API_URL = "https://api.thecatapi.com/v1/images/search";
 	private static final String API_KEY = System.getenv("CAT_API");
 
@@ -78,6 +80,11 @@ public class CatApiClient {
 	public boolean deleteImage(String filePath) {
 		File file = new File(filePath);
 		return file.delete();
+	}
+
+	@Override
+	public void execute(long chatId, String input, Bot2 bot) throws IOException {
+		bot.activateFunctionality("createCatImage");
 	}
 
 	//For testing the api

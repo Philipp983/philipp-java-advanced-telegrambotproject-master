@@ -2,30 +2,50 @@ package telegrambot;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import telegrambot.apiclients.texttospeech.TextToSpeechAPI;
 import telegrambot.catapiclient.CatApiClient;
+import telegrambot.configuration.CommandRegistry;
 import telegrambot.configuration.Config;
 import telegrambot.quiz.Millionaire;
 import telegrambot.telegram_ui.TelegramMenuUi;
 import telegrambot.apiclients.weatherapiclient.WeatherApiClient;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Bot2 extends TelegramLongPollingBot {
 
 	private static final String CAT_IMAGE_PATH = Config.getProperty("cat_image.path");
-	private TelegramMenuUi menuUI;
-	private Millionaire millionaireGame;
-	private CatApiClient catApiClient;
-	private WeatherApiClient weatherApiClient;
+	private final TelegramMenuUi menuUI;
+	private final Millionaire millionaireGame;
+	private final CatApiClient catApiClient;
+	private final WeatherApiClient weatherApiClient;
+	private final TextToSpeechAPI textToSpeechAPI;
 	private boolean isContaced;
-	boolean playMillionare;
-	boolean useWeatherAPI;
-	boolean createCatImage;
+	private boolean isWeatherGenerated;
+	private final CommandRegistry commandRegistry;
+	private final Map<String, Boolean> functionalities;
+	private String weather = "Please enter a city first";
 
 	public Bot2() {
 		this.millionaireGame = new Millionaire(this);
 		this.catApiClient = new CatApiClient();
 		this.weatherApiClient = new WeatherApiClient();
+		this.textToSpeechAPI = new TextToSpeechAPI();
 		this.menuUI = new TelegramMenuUi(this, millionaireGame);
+
+		this.commandRegistry = new CommandRegistry();
+		commandRegistry.register("/startgame", new Millionaire(this));
+		commandRegistry.register("/weather_api", new WeatherApiClient());
+		commandRegistry.register("/cat_image", new CatApiClient());
+		commandRegistry.register("/readout", new TextToSpeechAPI());
+
+		// Initialize the functionalities map
+		functionalities = new HashMap<>();
+		functionalities.put("playMillionaire", false);
+		functionalities.put("useWeatherAPI", false);
+		functionalities.put("createCatImage", false);
+		functionalities.put("useTTS", false);
 	}
 
 	@Override
@@ -33,36 +53,34 @@ public class Bot2 extends TelegramLongPollingBot {
 		long id = 0;
 		String txt = "";
 
+
 		// Handle message interactions
 		if (update.hasMessage() && update.getMessage().hasText()) {
 			id = update.getMessage().getChatId();
 			txt = update.getMessage().getText();
+			System.out.println("The current text from message is: " + txt);
+			System.out.println(txt);
 			if (txt.equals("Back to menu")) {
+				resetFunctionalities();
+				menuUI.clearKeyboard(id);
 				isContaced = false;
-				playMillionare = false;
-				useWeatherAPI = false;
-				createCatImage = false;
 			}
 			// Handle callback interactions
 			// For example, process button presses based on callback data
 		} else if (update.hasCallbackQuery()) {
 			txt = update.getCallbackQuery().getData();
+			System.out.println("Current text out of callback: " + txt);
 			if (txt.equals("/quit")) {
+				resetFunctionalities();
 				isContaced = false;
-				playMillionare = false;
-				useWeatherAPI = false;
-				createCatImage = false;
+				isWeatherGenerated = false;
 			}
-			System.out.println(txt);
 			id = update.getCallbackQuery().getMessage().getChatId();
 		}
-
 		if ((update.hasMessage() || update.hasCallbackQuery()) && !isContaced) {
 			menuUI.sendInlineKeyboard2(id, "Choose an option:");
-			System.out.println(txt);
 			isContaced = true;
 		}
-
 
 		try {
 			handleUserInput(id, txt);
@@ -78,20 +96,63 @@ public class Bot2 extends TelegramLongPollingBot {
 	}
 
 	private void run(long id, Update update, String txt) throws IOException {
-		if (playMillionare) {
+		boolean isMillionare = functionalities.get("playMillionaire");
+		boolean isWeather = functionalities.get("useWeatherAPI");
+		boolean isCatImage = functionalities.get("createCatImage");
+		boolean isTTS = functionalities.get("useTTS");
+		System.out.println("TTS is: " + isTTS);
+
+
+		if (isTTS) {
+			String audio = textToSpeechAPI.translateTextToSpeech(weather);
+			try {
+				Thread.sleep(2000);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			menuUI.sendAudio(Long.toString(id), audio);
+			activateFunctionality("useWeatherAPI");
+		}
+
+		if (isMillionare) {
+
 			millionaireGame.isGameInProgress(id,txt);
-		} else if (useWeatherAPI) {
-			menuUI.sendInlineKeyboard3(id, "Enter the city name for current weather: ");
-			if (update.getMessage() != null) {
+
+		} else if (isWeather) {
+
+			menuUI.sendInlineKeyboard4(id, "Enter the city name for current weather:\nOr read out the last weather:");
+
+				System.out.println(update.getMessage() != null ? "not null" : "is null");
+				if (update.getMessage() != null) {
+					try {
+						System.out.println("is weather updated1 " + isWeatherGenerated);
+						weather = weatherApiClient.getWeatherFromAnyCity(txt);
+						isWeatherGenerated = true;
+						System.out.println("is weather updated2 " + isWeatherGenerated);
+						System.out.println(weather.length());
+						System.out.println(weather);
+
+						menuUI.sendText(id, weather);
+						try {
+							Thread.sleep(500);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+
+		} else if (isCatImage) {
+			while (!catApiClient.createCatImage()) {
 				try {
-					String weather = weatherApiClient.getWeatherFromAnyCity(txt);
-					menuUI.sendText(id, weather);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
+					Thread.sleep(100); // Sleep for 100 milliseconds
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt(); // Restore interrupted status
+					throw new RuntimeException("Thread was interrupted", e);
 				}
 			}
-		} else if (createCatImage) {
-			while (!catApiClient.createCatImage());
 			menuUI.sendPhoto(id, CAT_IMAGE_PATH);
 			catApiClient.deleteImage(CAT_IMAGE_PATH);
 			menuUI.sendInlineKeyboard2(id, "Choose an option:");
@@ -99,23 +160,20 @@ public class Bot2 extends TelegramLongPollingBot {
 	}
 
 	private void handleUserInput(long id, String input) throws IOException {
-		switch (input) {
-			case "/startgame":
-				playMillionare = true;
-				useWeatherAPI = false;
-				createCatImage = false;
-				break;
-			case "/weather_api":
-				playMillionare = false;
-				useWeatherAPI = true;
-				createCatImage = false;
-				break;
-			case "/cat_image":
-				playMillionare = false;
-				useWeatherAPI = false;
-				createCatImage = true;
-				break;
+		IBotCommand command = commandRegistry.getCommand(input);
+		if (command != null) {
+			command.execute(id, input, this);
 		}
+	}
+
+	public void activateFunctionality(String functionality) {
+		resetFunctionalities();
+		functionalities.put(functionality, true);
+	}
+
+	private void resetFunctionalities() {
+		functionalities.keySet().forEach(key -> functionalities.put(key, false));
+
 	}
 
 	@Override

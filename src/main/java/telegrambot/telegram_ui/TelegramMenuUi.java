@@ -30,10 +30,6 @@ public class TelegramMenuUi {
 		this.millionaireGame = millionaireGame;
 	}
 
-/*	public void setMillionaireGame(Millionaire millionaireGame) {
-		this.millionaireGame = millionaireGame;
-	}*/
-
 	public void sendInlineKeyboard(long chatId, String text) {
 		InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 		List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
@@ -146,6 +142,49 @@ public class TelegramMenuUi {
 			return false;
 		}
 	}
+	public boolean sendInlineKeyboard4(long chatId, String text) {
+		// Create inline keyboard markup
+		InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
+		// Create list of keyboard rows
+		List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+
+		// First row
+		List<InlineKeyboardButton> rowInline1 = new ArrayList<>();
+		List<InlineKeyboardButton> rowInline2 = new ArrayList<>();
+		InlineKeyboardButton button1 = new InlineKeyboardButton();
+		InlineKeyboardButton button2 = new InlineKeyboardButton();
+		button1.setText("Go Back to Menu");
+		button1.setCallbackData("/quit");
+		button2.setText("Read the last message");
+		button2.setCallbackData("/readout");
+
+		rowInline1.add(button1);
+		rowInline2.add(button2);
+
+
+		// Add rows to the list
+		rowsInline.add(rowInline1);
+		rowsInline.add(rowInline2);
+
+
+		// Set the keyboard to the markup
+		inlineKeyboardMarkup.setKeyboard(rowsInline);
+
+		// Create message
+		SendMessage message = new SendMessage();
+		message.setChatId(chatId);
+		message.setText(text);
+		message.setReplyMarkup(inlineKeyboardMarkup);
+
+		try {
+			telegramLongPollingBot.execute(message);
+			return true;
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 
 	public void sendPhoto(long userID, String pathname) {
 		SendPhoto sendPhoto = new SendPhoto();
@@ -214,10 +253,23 @@ public class TelegramMenuUi {
 		}
 	}
 
-	public void sendMenuWithLadder(Long who, String txt, String ladder, ReplyKeyboardMarkup buttons) {
+	public ReplyKeyboardMarkup createWelcomingMenu() {
+		ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+		keyboardMarkup.setResizeKeyboard(true);
+		List<KeyboardRow> keyboard = new ArrayList<>();
+
+		KeyboardRow row = new KeyboardRow();
+
+		row.add(new KeyboardButton("Lets start with the first question"));
+		keyboard.add(row);
+		keyboardMarkup.setKeyboard(keyboard);
+		return keyboardMarkup;
+	}
+
+	public void sendMenuWithLadder(Long id, String txt, String ladder, ReplyKeyboardMarkup buttons) {
 		String fullMessage = ladder + "\n\n" + txt;
 
-		SendMessage sm = SendMessage.builder().chatId(who.toString())
+		SendMessage sm = SendMessage.builder().chatId(id.toString())
 				.parseMode("HTML").text(fullMessage)
 				.replyMarkup(buttons != null ? buttons : new ReplyKeyboardRemove()).build();
 
@@ -225,6 +277,19 @@ public class TelegramMenuUi {
 			telegramLongPollingBot.execute(sm);
 		} catch (TelegramApiException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	public void clearKeyboard(long chatId) {
+		SendMessage message = new SendMessage();
+		message.setChatId(chatId);
+		message.setText("Thanks for playing, hope to see you soon again!"); // Optionally, you can set a message text
+		message.setReplyMarkup(new ReplyKeyboardRemove(true));
+
+		try {
+			telegramLongPollingBot.execute(message);
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -240,6 +305,7 @@ public class TelegramMenuUi {
 		keyboardMarkup.setKeyboard(keyboard);
 		return keyboardMarkup;
 	}
+
 	public ReplyKeyboardMarkup startOverAndBackToMenu() {
 		ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
 		keyboardMarkup.setResizeKeyboard(true);
@@ -316,16 +382,4 @@ public class TelegramMenuUi {
 		return keyboardMarkup;
 	}
 
-	public ReplyKeyboardMarkup createWelcomingMenu() {
-		ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-		keyboardMarkup.setResizeKeyboard(true);
-		List<KeyboardRow> keyboard = new ArrayList<>();
-
-		KeyboardRow row = new KeyboardRow();
-
-		row.add(new KeyboardButton("Lets start with the first question"));
-		keyboard.add(row);
-		keyboardMarkup.setKeyboard(keyboard);
-		return keyboardMarkup;
-	}
 }

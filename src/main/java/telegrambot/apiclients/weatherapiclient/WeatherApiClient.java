@@ -5,10 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import telegrambot.Bot2;
+import telegrambot.IBotCommand;
 
 import java.io.IOException;
 
-public class WeatherApiClient {
+public class WeatherApiClient implements IBotCommand {
 	private static final String API_URL = "https://api.openweathermap.org/data/2.5/weather";
 	private static final String GEO_API_URL = "http://api.openweathermap.org/geo/1.0/direct?";
 	private static final String API_KEY = System.getenv("WEATHER_API");
@@ -90,8 +92,8 @@ public class WeatherApiClient {
 			builder.append(" in the state of: " + coordinates[2]);
 			builder.append("\nDescription: " + description);
 			builder.append("\nTemperature: " + temperature + "°C");
-			builder.append("\nWindspeed: " + windSpeed + " m/s");
 			builder.append("\nWhich feels like: " + feelTemp + "°C");
+			builder.append("\nWindspeed: " + windSpeed + " m/s");
 			builder.append("\nCurrent min/max: " + temp_min + "/" + temp_max + "°C");
 			builder.append("\nHumidity: " + humidity + "%");
 
@@ -139,9 +141,8 @@ public class WeatherApiClient {
 
 	}
 
-	public static void main(String[] args) throws IOException {
-		System.out.println(getHannoverWeather());
-//		System.out.println(getWeatherFromAnyCity("Hamburg"));
-
+	@Override
+	public void execute(long chatId, String input, Bot2 bot) throws IOException {
+		bot.activateFunctionality("useWeatherAPI");
 	}
 }
