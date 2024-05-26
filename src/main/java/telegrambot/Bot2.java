@@ -72,6 +72,7 @@ public class Bot2 extends TelegramLongPollingBot {
 			System.out.println("Current text out of callback: " + txt);
 			if (txt.equals("/quit")) {
 				resetFunctionalities();
+				weather = "Please enter a city first";
 				isContaced = false;
 				isWeatherGenerated = false;
 			}
@@ -122,7 +123,7 @@ public class Bot2 extends TelegramLongPollingBot {
 
 			menuUI.sendInlineKeyboard4(id, "Enter the city name for current weather:\nOr read out the last weather:");
 
-				System.out.println(update.getMessage() != null ? "not null" : "is null");
+//				System.out.println(update.getMessage() != null ? "not null" : "is null");
 				if (update.getMessage() != null) {
 					try {
 						System.out.println("is weather updated1 " + isWeatherGenerated);
