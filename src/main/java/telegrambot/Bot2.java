@@ -47,13 +47,10 @@ public class Bot2 extends TelegramLongPollingBot {
 		functionalities.put("createCatImage", false);
 		functionalities.put("useTTS", false);
 	}
-
 	@Override
 	public void onUpdateReceived(Update update) {
 		long id = 0;
 		String txt = "";
-
-
 		// Handle message interactions
 		if (update.hasMessage() && update.getMessage().hasText()) {
 			id = update.getMessage().getChatId();
@@ -78,17 +75,16 @@ public class Bot2 extends TelegramLongPollingBot {
 			}
 			id = update.getCallbackQuery().getMessage().getChatId();
 		}
+
 		if ((update.hasMessage() || update.hasCallbackQuery()) && !isContaced) {
 			menuUI.sendInlineKeyboard2(id, "Choose an option:");
 			isContaced = true;
 		}
-
 		try {
 			handleUserInput(id, txt);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-
 		try {
 			run(id, update, txt);
 		} catch (IOException e) {
@@ -102,7 +98,6 @@ public class Bot2 extends TelegramLongPollingBot {
 		boolean isCatImage = functionalities.get("createCatImage");
 		boolean isTTS = functionalities.get("useTTS");
 		System.out.println("TTS is: " + isTTS);
-
 
 		if (isTTS) {
 			String audio = textToSpeechAPI.translateTextToSpeech(weather);
@@ -120,10 +115,7 @@ public class Bot2 extends TelegramLongPollingBot {
 			millionaireGame.isGameInProgress(id,txt);
 
 		} else if (isWeather) {
-
 			menuUI.sendInlineKeyboard4(id, "Enter the city name for current weather:\nOr read out the last weather:");
-
-//				System.out.println(update.getMessage() != null ? "not null" : "is null");
 				if (update.getMessage() != null) {
 					try {
 						System.out.println("is weather updated1 " + isWeatherGenerated);
@@ -132,14 +124,12 @@ public class Bot2 extends TelegramLongPollingBot {
 						System.out.println("is weather updated2 " + isWeatherGenerated);
 						System.out.println(weather.length());
 						System.out.println(weather);
-
 						menuUI.sendText(id, weather);
 						try {
 							Thread.sleep(500);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
