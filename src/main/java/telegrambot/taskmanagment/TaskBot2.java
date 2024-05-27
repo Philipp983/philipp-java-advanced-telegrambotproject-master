@@ -53,6 +53,19 @@ public class TaskBot2 implements IBotCommand {
 
 	}
 
+	private void sendTasksList(long chatId) {
+		List<Task> tasks = taskManager.getTasks();
+		StringBuilder response = new StringBuilder("Tasks:\n");
+		int counter = 1;
+		for (Task task : tasks) {
+			response.append("Task ").append(counter).append(": ")
+					.append(task.getTitle()).append(" (").append(task.getToDo()).append(")\n");
+			counter++;
+		}
+		sendTextMessage(chatId, response.toString());
+		sendMainMenu(chatId);
+	}
+
 	private void handleDeleteTask(long chatId, String title) {
 
 		if(taskManager.deleteTask(title)){
@@ -83,7 +96,7 @@ public class TaskBot2 implements IBotCommand {
 		isDeletingAllTasks = true;
 	}
 
-	private void sendTasksList(long chatId) {
+	private void sendTasksList2(long chatId) {
 		List<Task> tasks = taskManager.getTasks();
 		StringBuilder response = new StringBuilder("Tasks:\n");
 		for (Task task : tasks) {
