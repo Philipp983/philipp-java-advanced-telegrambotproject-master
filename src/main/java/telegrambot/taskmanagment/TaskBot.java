@@ -31,7 +31,7 @@ public class TaskBot implements IBotCommand {
     }
 
 
-    public void useTaskManager(Update update) {
+    public void useTaskManager5(Update update) {
         if (update.hasMessage() && update.getMessage().hasText() || (update.hasCallbackQuery() && update.getCallbackQuery().getData().equals("/task_Manager"))) {
             long chatId = 0;
             String messageText = "";

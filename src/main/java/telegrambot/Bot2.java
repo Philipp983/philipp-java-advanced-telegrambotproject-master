@@ -12,6 +12,7 @@ import telegrambot.configuration.CommandRegistry;
 import telegrambot.configuration.Config;
 import telegrambot.quiz.Millionaire;
 import telegrambot.taskmanagment.TaskBot;
+import telegrambot.taskmanagment.TaskBot2;
 import telegrambot.telegram_ui.TelegramMenuUi;
 import telegrambot.apiclients.weatherapiclient.WeatherApiClient;
 
@@ -31,7 +32,7 @@ public class Bot2 extends TelegramLongPollingBot {
 	private final CatApiClient catApiClient;
 	private final WeatherApiClient weatherApiClient;
 	private final TextToSpeechAPI textToSpeechAPI;
-	private final TaskBot taskBot;
+	private final TaskBot2 taskBot;
 	private boolean isContaced;
 	private boolean isWeatherGenerated;
 	private final CommandRegistry commandRegistry;
@@ -43,7 +44,7 @@ public class Bot2 extends TelegramLongPollingBot {
 		this.catApiClient = new CatApiClient();
 		this.weatherApiClient = new WeatherApiClient();
 		this.textToSpeechAPI = new TextToSpeechAPI();
-		this.taskBot = new TaskBot(this);
+		this.taskBot = new TaskBot2(this);
 		this.menuUI = new TelegramMenuUi(this, millionaireGame);
 
 		// here, the subscribers are subscribing to the publisher
@@ -168,7 +169,7 @@ public class Bot2 extends TelegramLongPollingBot {
 
 		if (isTaskManager) {
 //			menuUI.sendText(id, "hello");
-			taskBot.useTaskManager(update);
+			taskBot.useTaskManager(id, txt);
 		}
 		if (isTTS) {
 			String audio = textToSpeechAPI.translateTextToSpeech(weather);
