@@ -6,6 +6,7 @@ import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import telegrambot.apiclients.speechtotext.App;
+import telegrambot.apiclients.speechtotext.TranscriptionAPI;
 import telegrambot.apiclients.texttospeech.TextToSpeechAPI;
 import telegrambot.catapiclient.CatApiClient;
 import telegrambot.configuration.CommandRegistry;
@@ -33,6 +34,7 @@ public class Bot2 extends TelegramLongPollingBot {
 	private final WeatherApiClient weatherApiClient;
 	private final TextToSpeechAPI textToSpeechAPI;
 	private final TaskBot2 taskBot;
+	private final TranscriptionAPI transcriptionAPI;
 	private boolean isContaced;
 	private boolean isWeatherGenerated;
 	private final CommandRegistry commandRegistry;
@@ -44,6 +46,7 @@ public class Bot2 extends TelegramLongPollingBot {
 		this.catApiClient = new CatApiClient();
 		this.weatherApiClient = new WeatherApiClient();
 		this.textToSpeechAPI = new TextToSpeechAPI();
+		this.transcriptionAPI = new TranscriptionAPI();
 		this.taskBot = new TaskBot2(this);
 		this.menuUI = new TelegramMenuUi(this, millionaireGame);
 
@@ -81,7 +84,7 @@ public class Bot2 extends TelegramLongPollingBot {
 			txt = update.getMessage().getText();
 			System.out.println("The current text from message is: " + txt);
 			System.out.println(txt);
-			if (txt.equals("/back_to_menu")) {
+			if (txt.equals("Back to Menu")) {
 				resetFunctionalities();
 				menuUI.clearKeyboard(id);
 				isContaced = false;
@@ -104,9 +107,9 @@ public class Bot2 extends TelegramLongPollingBot {
 			 */
 		} else if (update.hasMessage() && update.getMessage().hasVoice()) {
 			id = update.getMessage().getChatId();
-			System.out.println("Has voice");
+/*			System.out.println("Has voice");
 			System.out.println("is this true: " + update.getMessage().hasText());
-			System.out.println(update.getMessage().getVoice());
+			System.out.println(update.getMessage().getVoice());*/
 			String fileId = update.getMessage().getVoice().getFileId();
 			try {
 				downloadVoiceFile(fileId, id);
@@ -114,17 +117,29 @@ public class Bot2 extends TelegramLongPollingBot {
 				e.printStackTrace();
 			}
 			try {
-				Thread.sleep(5000);
+				Thread.sleep(1000);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			txt = String.valueOf(App.transcribeAudioToText(Config.getProperty("voice_recording.path") + "voiceRecording.ogg"));
+
+			String basePath = Config.getProperty("voice_recording.path");
+			String fileUrl = basePath + "audioSample.ogg";
+			String uploadFileUrl = "";
+			try {
+				uploadFileUrl = transcriptionAPI.uploadFile(fileUrl);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+
+			String transcript = String.valueOf(transcriptionAPI.transcribeAudioToText(uploadFileUrl));
 
 			try {
-				Thread.sleep(5000);
+				Thread.sleep(1000);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+
+			txt = transcript;
 
 			System.out.println(txt);
 		}

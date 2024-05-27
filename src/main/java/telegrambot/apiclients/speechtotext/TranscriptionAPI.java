@@ -26,17 +26,17 @@ public class TranscriptionAPI {
 	public TranscriptionAPI() {}
 
 	public static void main(String[] args) {
-		try {
+/*		try {
 			String path = "C:\\Users\\phili\\IdeaProjects\\philipp-java-advanced-telegrambotproject-master\\src\\main\\resources\\voice_recordings\\audioSample.ogg"; // Update the file path here
 			String uploadedFileUrl = uploadFile(path);
 			String transcript = String.valueOf(transcribeAudioToText(uploadedFileUrl));
 			System.out.println("Transcript:\n" + transcript);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
-		}
+		}*/
 	}
 
-	public static String uploadFile(String path) throws IOException {
+	public  String uploadFile(String path) throws IOException {
 		File file = new File(path);
 		RequestBody fileBody = RequestBody.create(file, MediaType.parse("application/octet-stream"));
 		Request request = new Request.Builder()
@@ -62,7 +62,7 @@ public class TranscriptionAPI {
 		Transcript transcript = client.transcripts().transcribe(pathToFile, params);
 	 */
 
-	public static Optional<String> transcribeAudioToText(String pathToFile) {
+	public  Optional<String> transcribeAudioToText(String pathToFile) {
 		AssemblyAI client = AssemblyAI.builder()
 				.apiKey(API_KEY)
 				.build();

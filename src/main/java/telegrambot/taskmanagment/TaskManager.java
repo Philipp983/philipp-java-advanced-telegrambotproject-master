@@ -3,6 +3,7 @@ package telegrambot.taskmanagment;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
+import telegrambot.configuration.Config;
 
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -12,7 +13,7 @@ import java.util.List;
 
 public class TaskManager {
     private List<Task> tasks;
-    private String csvFilePath = "tasks.csv";
+    private String csvFilePath = Config.getProperty("added_voice_to_text.path");
 
     public TaskManager() {
         this.tasks = new ArrayList<>();
@@ -31,6 +32,12 @@ public class TaskManager {
             return true;
         }
         return false;
+    }
+
+    public boolean deleteAllTasks() {
+        tasks.clear();
+        saveTasksToCSV();  // Save the changes to the CSV file after clearing the list.
+        return tasks.isEmpty();  // Check if the list is empty to confirm deletion.
     }
 
     public boolean completeTask(String title) {

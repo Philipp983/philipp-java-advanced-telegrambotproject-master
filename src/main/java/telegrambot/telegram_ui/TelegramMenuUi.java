@@ -321,7 +321,7 @@ public class TelegramMenuUi {
 		KeyboardRow row = new KeyboardRow();
 
 		row.add(new KeyboardButton("Lets start again!"));
-		row.add(new KeyboardButton("/back_to_menu"));
+		row.add(new KeyboardButton("Back to Menu"));
 		keyboard.add(row);
 		keyboardMarkup.setKeyboard(keyboard);
 		return keyboardMarkup;
