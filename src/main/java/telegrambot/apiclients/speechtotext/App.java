@@ -8,16 +8,8 @@ import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import org.telegram.telegrambots.meta.api.methods.GetFile;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import telegrambot.configuration.Config;
-
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +23,46 @@ public final class App {
 			.readTimeout(60, TimeUnit.SECONDS)
 			.build();
 	private static final ObjectMapper objectMapper = new ObjectMapper();
+
+	public static String uploadFile(String path) throws IOException {
+		java.io.File file = new File(path);
+		RequestBody fileBody = RequestBody.create(file, MediaType.parse("application/octet-stream"));
+		Request request = new Request.Builder()
+				.url(UPLOAD_URL)
+				.addHeader("authorization", API_KEY)
+				.post(fileBody)
+				.build();
+
+		try (Response response = okClient.newCall(request).execute()) {
+			if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+			JsonNode jsonResponse = objectMapper.readTree(response.body().string());
+			return jsonResponse.get("upload_url").asText();
+		}
+	}
+
+	public static Optional<String> transcribeAudioToText(String pathToFile) {
+		AssemblyAI client = AssemblyAI.builder()
+				.apiKey(API_KEY)
+				.build();
+
+
+		var params = TranscriptOptionalParams.builder()
+				.speakerLabels(true)
+				.build();
+
+		//Old version, took no param and had the AUDIO_URL for transcribing
+//		Transcript transcript = client.transcripts().transcribe(AUDIO_URL, params);
+		Transcript transcript = client.transcripts().transcribe(pathToFile, params);
+
+		System.out.println(transcript.getText());
+
+		transcript.getUtterances().ifPresent(utterances ->
+				utterances.forEach(utterance ->
+						System.out.println("Speaker " + utterance.getSpeaker() + ": " + utterance.getText())
+				)
+		);
+		return transcript.getText();
+	}
 //	public static void main(String[] args) {
 ////		transcribeAudioToText();
 //	}
@@ -102,44 +134,4 @@ public final class App {
 
 		// Now you can process the voice file as needed
 	}*/
-
-	public static String uploadFile(String path) throws IOException {
-		java.io.File file = new File(path);
-		RequestBody fileBody = RequestBody.create(file, MediaType.parse("application/octet-stream"));
-		Request request = new Request.Builder()
-				.url(UPLOAD_URL)
-				.addHeader("authorization", API_KEY)
-				.post(fileBody)
-				.build();
-
-		try (Response response = okClient.newCall(request).execute()) {
-			if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-			JsonNode jsonResponse = objectMapper.readTree(response.body().string());
-			return jsonResponse.get("upload_url").asText();
-		}
-	}
-
-	public static Optional<String> transcribeAudioToText(String pathToFile) {
-		AssemblyAI client = AssemblyAI.builder()
-				.apiKey(API_KEY)
-				.build();
-
-
-		var params = TranscriptOptionalParams.builder()
-				.speakerLabels(true)
-				.build();
-
-		//Old version, took no param and had the AUDIO_URL for transcribing
-//		Transcript transcript = client.transcripts().transcribe(AUDIO_URL, params);
-		Transcript transcript = client.transcripts().transcribe(pathToFile, params);
-
-		System.out.println(transcript.getText());
-
-		transcript.getUtterances().ifPresent(utterances ->
-				utterances.forEach(utterance ->
-						System.out.println("Speaker " + utterance.getSpeaker() + ": " + utterance.getText())
-				)
-		);
-		return transcript.getText();
-	}
 }

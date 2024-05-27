@@ -7,7 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import telegrambot.Bot2;
 import telegrambot.IBotCommand;
-import telegrambot.telegram_ui.TelegramMenuUi;
+import telegrambot.apiclients.speechtotext.TranscriptionAPI;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,10 +22,12 @@ public class TaskBot implements IBotCommand {
     private boolean isEditingTaskDetails = false;
     private String editingTaskTitle;
     private TelegramLongPollingBot bot;
+    private TranscriptionAPI transcribeServiceAudioToText;
 
     public TaskBot(TelegramLongPollingBot bot) {
         this.taskManager = new TaskManager();
         this.bot = bot;
+        this.transcribeServiceAudioToText = new TranscriptionAPI();
     }
 
 
@@ -104,6 +106,28 @@ public class TaskBot implements IBotCommand {
                     isAddingTask = true;
                     break;
             }
+        } else if (update.hasMessage() && update.getMessage().hasVoice()) {
+
+            long id = update.getMessage().getChatId();
+
+            String path = "C:\\Users\\phili\\IdeaProjects\\philipp-java-advanced-telegrambotproject-master\\src\\main\\resources\\voice_recordings\\audioSample.ogg"; // Update the file path here
+			String uploadedFileUrl = null;
+			try {
+				uploadedFileUrl = transcribeServiceAudioToText.uploadFile(path);
+                Thread.sleep(2000);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			} catch (Exception e) {
+                e.printStackTrace();
+            }
+			String transcript = String.valueOf(transcribeServiceAudioToText.transcribeAudioToText(uploadedFileUrl));
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            handleAddTask2(id, transcript);
+
         }
     }
 
@@ -176,6 +200,13 @@ public class TaskBot implements IBotCommand {
         row.add(viewCompletedTasksButton);
         rows.add(row);
 
+        row = new ArrayList<>();
+        InlineKeyboardButton backToMainMenuTasksButton = new InlineKeyboardButton();
+        backToMainMenuTasksButton.setText("Go Back to main menu");
+        backToMainMenuTasksButton.setCallbackData("/quit");
+        row.add(backToMainMenuTasksButton);
+        rows.add(row);
+
         markup.setKeyboard(rows);
         return markup;
     }
@@ -219,7 +250,7 @@ public class TaskBot implements IBotCommand {
         StringBuilder response = new StringBuilder("Tasks:\n");
         for (Task task : tasks) {
             String status = task.isCompleted() ? "[✅]" : "[ ]";
-            response.append(status).append(" ").append(task.getTitle()).append(" (").append(task.getDeadline()).append(", ").append(task.getCategory()).append(")\n");
+            response.append(status).append(" ").append(task.getTitle()).append(" (").append(task.getToDo()).append(", ").append(task.getCategory()).append(")\n");
         }
         sendTextMessage(chatId, response.toString());
         sendMainMenu(chatId);
@@ -229,7 +260,7 @@ public class TaskBot implements IBotCommand {
         List<Task> tasks = taskManager.getCompletedTasks();
         StringBuilder response = new StringBuilder("Completed Tasks:\n");
         for (Task task : tasks) {
-            response.append("[✅] ").append(task.getTitle()).append(" (").append(task.getDeadline()).append(", ").append(task.getCategory()).append(")\n");
+            response.append("[✅] ").append(task.getTitle()).append(" (").append(task.getToDo()).append(", ").append(task.getCategory()).append(")\n");
         }
         if (tasks.isEmpty()) {
             response.append("No completed tasks found.");
@@ -249,6 +280,8 @@ public class TaskBot implements IBotCommand {
     }
 
     private void handleAddTask(long chatId, String taskDetails) {
+        // here my voice recording api
+
         String[] taskInfo = taskDetails.split(",");
         if (taskInfo.length == 3) {
             String title = taskInfo[0].trim();
@@ -260,6 +293,19 @@ public class TaskBot implements IBotCommand {
         } else {
             sendTextMessage(chatId, "Invalid input format. Please enter the task details in the correct format (e.g., Title, Deadline, Category).");
         }
+        isAddingTask = false;
+        sendMainMenu(chatId);
+    }
+    private void handleAddTask2(long chatId, String taskDetails) {
+        // here my voice recording api
+        String taskInfo = taskDetails;
+
+            String title = "Voice recording proof of concept";
+            String toDo = taskInfo;
+            String category = "Example";
+            Task task = new Task(title, toDo, category);
+            taskManager.addTask(task);
+            sendTextMessage(chatId, "Task added successfully!");
         isAddingTask = false;
         sendMainMenu(chatId);
     }

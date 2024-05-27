@@ -46,7 +46,7 @@ public class TaskManager {
     public boolean editTask(String oldTitle, String newDeadline, String newCategory) {
         Task task = findTaskByTitle(oldTitle);
         if (task != null) {
-            task.setDeadline(newDeadline);
+            task.setToDo(newDeadline);
             task.setCategory(newCategory);
             saveTasksToCSV();
             return true;
@@ -97,7 +97,7 @@ public class TaskManager {
     private void saveTasksToCSV() {
         try (CSVWriter writer = new CSVWriter(new FileWriter(csvFilePath))) {
             for (Task task : tasks) {
-                writer.writeNext(new String[]{task.getTitle(), task.getDeadline(), task.getCategory(), String.valueOf(task.isCompleted())});
+                writer.writeNext(new String[]{task.getTitle(), task.getToDo(), task.getCategory(), String.valueOf(task.isCompleted())});
             }
         } catch (IOException e) {
             System.err.println("Error saving tasks to CSV: " + e.getMessage());

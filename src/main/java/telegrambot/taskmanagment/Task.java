@@ -2,26 +2,26 @@ package telegrambot.taskmanagment;
 
 public class Task {
     private String title;
-    private String deadline;
+    private String toDo;
     private String category;
     private boolean completed;
     private String icon;
 
     public Task(String title, String deadline, String category) {
         this.title = title;
-        this.deadline = deadline;
+        this.toDo = deadline;
         this.category = category;
         this.completed = false;
         this.icon = "\uD83D\uDD15";
     }
 
     // Getters and setters
-    public String getDeadline() {
-        return deadline;
+    public String getToDo() {
+        return toDo;
     }
 
-    public void setDeadline(String deadline) {
-        this.deadline = deadline;
+    public void setToDo(String toDo) {
+        this.toDo = toDo;
     }
 
     public String getTitle() {
