@@ -13,6 +13,7 @@ import telegrambot.configuration.Config;
 import telegrambot.quiz.Millionaire;
 import telegrambot.telegram_ui.TelegramMenuUi;
 import telegrambot.apiclients.weatherapiclient.WeatherApiClient;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -42,6 +43,7 @@ public class Bot2 extends TelegramLongPollingBot {
 		this.textToSpeechAPI = new TextToSpeechAPI();
 		this.menuUI = new TelegramMenuUi(this, millionaireGame);
 
+		// here, the subscribers are subscribing to the publisher
 		this.commandRegistry = new CommandRegistry();
 		commandRegistry.register("/startgame", new Millionaire(this));
 		commandRegistry.register("/weather_api", new WeatherApiClient());
@@ -55,11 +57,19 @@ public class Bot2 extends TelegramLongPollingBot {
 		functionalities.put("createCatImage", false);
 		functionalities.put("useTTS", false);
 	}
+
+	/**
+	 * This method comes from the TelegramLongPollingBot and has all the necessary information from the User
+	 * who is interacting with the Telegram Bot. Every time the user enters some information, the onUpdateReceived method
+	 * is called with the User input stored in the update variable
+	 * @param update
+	 */
+
 	@Override
 	public void onUpdateReceived(Update update) {
 		long id = 0;
 		String txt = "";
-		// Handle message interactions
+		// Handle message interactions coming from the message field (typed infos)
 		if (update.hasMessage() && update.getMessage().hasText()) {
 			id = update.getMessage().getChatId();
 			txt = update.getMessage().getText();
@@ -82,7 +92,11 @@ public class Bot2 extends TelegramLongPollingBot {
 				isWeatherGenerated = false;
 			}
 			id = update.getCallbackQuery().getMessage().getChatId();
-		} 			else if (update.hasMessage() && update.getMessage().hasVoice()) {
+			/*
+				The following else if is to analyse voice recordings. But is not yet working with the
+				respective api for creating a text from voice.
+			 */
+		} else if (update.hasMessage() && update.getMessage().hasVoice()) {
 			id = update.getMessage().getChatId();
 			System.out.println("Has voice");
 			System.out.println("is this true: " + update.getMessage().hasText());
@@ -93,7 +107,7 @@ public class Bot2 extends TelegramLongPollingBot {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			try{
+			try {
 				Thread.sleep(5000);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -109,15 +123,24 @@ public class Bot2 extends TelegramLongPollingBot {
 			System.out.println(txt);
 		}
 
+		// Current version sends the starting menu as a default and only once, until something from it is pressed
+		// Or the underlying command is typed
 		if ((update.hasMessage() || update.hasCallbackQuery()) && !isContaced) {
 			menuUI.sendInlineKeyboard2(id, "Choose an option:");
 			isContaced = true;
 		}
+
+		/*
+		This section analyses the user input and delegates it to the subscriber pattern
+		 */
 		try {
 			handleUserInput(id, txt);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		/*
+		a block with if statements, for only running the classes that were called through user input
+		 */
 		try {
 			run(id, update, txt);
 		} catch (IOException e) {
@@ -145,28 +168,28 @@ public class Bot2 extends TelegramLongPollingBot {
 
 		if (isMillionare) {
 
-			millionaireGame.isGameInProgress(id,txt);
+			millionaireGame.isGameInProgress(id, txt);
 
 		} else if (isWeather) {
 			menuUI.sendInlineKeyboard4(id, "Enter the city name for current weather:\nOr read out the last weather:");
-				if (update.getMessage() != null) {
+			if (update.getMessage() != null) {
+				try {
+					System.out.println("is weather updated1 " + isWeatherGenerated);
+					weather = weatherApiClient.getWeatherFromAnyCity(txt);
+					isWeatherGenerated = true;
+					System.out.println("is weather updated2 " + isWeatherGenerated);
+					System.out.println(weather.length());
+					System.out.println(weather);
+					menuUI.sendText(id, weather);
 					try {
-						System.out.println("is weather updated1 " + isWeatherGenerated);
-						weather = weatherApiClient.getWeatherFromAnyCity(txt);
-						isWeatherGenerated = true;
-						System.out.println("is weather updated2 " + isWeatherGenerated);
-						System.out.println(weather.length());
-						System.out.println(weather);
-						menuUI.sendText(id, weather);
-						try {
-							Thread.sleep(500);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					} catch (IOException e) {
-						throw new RuntimeException(e);
+						Thread.sleep(500);
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
+				} catch (IOException e) {
+					throw new RuntimeException(e);
 				}
+			}
 
 		} else if (isCatImage) {
 			while (!catApiClient.createCatImage()) {
@@ -190,7 +213,11 @@ public class Bot2 extends TelegramLongPollingBot {
 		}
 	}
 
-		private void downloadVoiceFile(String fileId, long chatId) throws IOException {
+	/*
+	this is for later work, used to download recorded voice samples from the user in the telegram bot.
+	the saved audio file should then be processed by the right api
+	 */
+	private void downloadVoiceFile(String fileId, long chatId) throws IOException {
 		// Get the file path from Telegram API
 		GetFile getFileRequest = new GetFile();
 		getFileRequest.setFileId(fileId);
@@ -230,21 +257,39 @@ public class Bot2 extends TelegramLongPollingBot {
 		// Now you can process the voice file as needed
 	}
 
+	/*
+	the subscriber that is targeted through the user input, read out from update, sets its boolean to true
+	so that the respective block in the run method is running
+	 */
 	public void activateFunctionality(String functionality) {
 		resetFunctionalities();
 		functionalities.put(functionality, true);
 	}
 
+	/*
+	this method sets all boolean values in the map to false, so that only one class is run at the same time in the
+	run method
+	 */
 	private void resetFunctionalities() {
 		functionalities.keySet().forEach(key -> functionalities.put(key, false));
 
 	}
 
+	/**
+	 * Telegram bot that should receive the messages has to specified here.
+	 * Value is saved as environment variable under 'BOT_USERNAME=XXXX'
+	 * @return
+	 */
 	@Override
 	public String getBotUsername() {
 		return System.getenv("BOT_USERNAME");
 	}
 
+	/**
+	 * For authentication, the token of the bot needs to be specified here
+	 * Value is saved as environment variable under 'BOT_TOKEN=XXXX'
+	 * @return
+	 */
 	@Override
 	public String getBotToken() {
 		return System.getenv("BOT_TOKEN");
