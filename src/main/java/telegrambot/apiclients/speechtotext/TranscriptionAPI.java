@@ -1,10 +1,16 @@
 package telegrambot.apiclients.speechtotext;
 
+import com.assemblyai.api.AssemblyAI;
+import com.assemblyai.api.resources.transcripts.types.Transcript;
+import com.assemblyai.api.resources.transcripts.types.TranscriptLanguageCode;
+import com.assemblyai.api.resources.transcripts.types.TranscriptOptionalParams;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class TranscriptionAPI {
@@ -21,11 +27,11 @@ public class TranscriptionAPI {
 
 	public static void main(String[] args) {
 		try {
-			String path = "C:\\Users\\phili\\IdeaProjects\\philipp-java-advanced-telegrambotproject-master\\src\\main\\resources\\voice_recordings\\voiceRecording.ogg"; // Update the file path here
+			String path = "C:\\Users\\phili\\IdeaProjects\\philipp-java-advanced-telegrambotproject-master\\src\\main\\resources\\voice_recordings\\audioSample.ogg"; // Update the file path here
 			String uploadedFileUrl = uploadFile(path);
-			String transcript = getTranscript(uploadedFileUrl);
+			String transcript = String.valueOf(transcribeAudioToText(uploadedFileUrl));
 			System.out.println("Transcript:\n" + transcript);
-		} catch (IOException | InterruptedException e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -44,6 +50,43 @@ public class TranscriptionAPI {
 			JsonNode jsonResponse = objectMapper.readTree(response.body().string());
 			return jsonResponse.get("upload_url").asText();
 		}
+	}
+
+	/*
+			var params = TranscriptOptionalParams.builder()
+				.speakerLabels(true)
+				.build();
+
+		//Old version, took no param and had the AUDIO_URL for transcribing
+//		Transcript transcript = client.transcripts().transcribe(AUDIO_URL, params);
+		Transcript transcript = client.transcripts().transcribe(pathToFile, params);
+	 */
+
+	public static Optional<String> transcribeAudioToText(String pathToFile) {
+		AssemblyAI client = AssemblyAI.builder()
+				.apiKey(API_KEY)
+				.build();
+
+
+		var params = TranscriptOptionalParams.builder()
+				.speakerLabels(true)
+				.languageCode(TranscriptLanguageCode.DE)
+				.build();
+
+		//Old version, took no param and had the AUDIO_URL for transcribing
+//		Transcript transcript = client.transcripts().transcribe(AUDIO_URL, params);
+		Transcript transcript = client.transcripts().transcribe(pathToFile, params);
+
+//		For testing purposes
+//		System.out.println(transcript.getText());
+
+
+		transcript.getUtterances().ifPresent(utterances ->
+				utterances.forEach(utterance ->
+						System.out.println("Speaker " + utterance.getSpeaker() + ": " + utterance.getText())
+				)
+		);
+		return transcript.getText();
 	}
 
 	public static String getTranscript(String audioUrl) throws IOException, InterruptedException {

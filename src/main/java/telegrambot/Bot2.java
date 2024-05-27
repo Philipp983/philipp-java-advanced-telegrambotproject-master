@@ -11,6 +11,7 @@ import telegrambot.catapiclient.CatApiClient;
 import telegrambot.configuration.CommandRegistry;
 import telegrambot.configuration.Config;
 import telegrambot.quiz.Millionaire;
+import telegrambot.taskmanagment.TaskBot;
 import telegrambot.telegram_ui.TelegramMenuUi;
 import telegrambot.apiclients.weatherapiclient.WeatherApiClient;
 
@@ -30,6 +31,7 @@ public class Bot2 extends TelegramLongPollingBot {
 	private final CatApiClient catApiClient;
 	private final WeatherApiClient weatherApiClient;
 	private final TextToSpeechAPI textToSpeechAPI;
+	private final TaskBot taskBot;
 	private boolean isContaced;
 	private boolean isWeatherGenerated;
 	private final CommandRegistry commandRegistry;
@@ -41,6 +43,7 @@ public class Bot2 extends TelegramLongPollingBot {
 		this.catApiClient = new CatApiClient();
 		this.weatherApiClient = new WeatherApiClient();
 		this.textToSpeechAPI = new TextToSpeechAPI();
+		this.taskBot = new TaskBot(this);
 		this.menuUI = new TelegramMenuUi(this, millionaireGame);
 
 		// here, the subscribers are subscribing to the publisher
@@ -49,6 +52,7 @@ public class Bot2 extends TelegramLongPollingBot {
 		commandRegistry.register("/weather_api", new WeatherApiClient());
 		commandRegistry.register("/cat_image", new CatApiClient());
 		commandRegistry.register("/readout", new TextToSpeechAPI());
+		commandRegistry.register("/task_Manager", new TaskBot(this));
 
 		// Initialize the functionalities map
 		functionalities = new HashMap<>();
@@ -56,6 +60,7 @@ public class Bot2 extends TelegramLongPollingBot {
 		functionalities.put("useWeatherAPI", false);
 		functionalities.put("createCatImage", false);
 		functionalities.put("useTTS", false);
+		functionalities.put("useTaskManager", false);
 	}
 
 	/**
@@ -153,8 +158,18 @@ public class Bot2 extends TelegramLongPollingBot {
 		boolean isWeather = functionalities.get("useWeatherAPI");
 		boolean isCatImage = functionalities.get("createCatImage");
 		boolean isTTS = functionalities.get("useTTS");
+		boolean isTaskManager = functionalities.get("useTaskManager");
 		System.out.println("TTS is: " + isTTS);
+		System.out.println("Millionaire is: " + isMillionare);
+		System.out.println("Weather is: " + isWeather);
+		System.out.println("Cat is: " + isCatImage);
+		System.out.println("TaskManager is: " + isTaskManager);
 
+
+		if (isTaskManager) {
+//			menuUI.sendText(id, "hello");
+			taskBot.useTaskManager(update);
+		}
 		if (isTTS) {
 			String audio = textToSpeechAPI.translateTextToSpeech(weather);
 			try {
@@ -240,7 +255,7 @@ public class Bot2 extends TelegramLongPollingBot {
 		}
 
 		// Construct the full file path with the file ID
-		String localFilePath = baseFilePath + "voiceRecording.ogg";
+		String localFilePath = baseFilePath + "audioSample.ogg";
 		java.io.File localFile = new java.io.File(localFilePath);
 
 		// Construct the URL to download the file

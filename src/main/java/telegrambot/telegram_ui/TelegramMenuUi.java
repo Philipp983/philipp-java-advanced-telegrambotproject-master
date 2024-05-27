@@ -85,10 +85,17 @@ public class TelegramMenuUi {
 		button3.setCallbackData("/cat_image");
 		rowInline3.add(button3);
 
+		List<InlineKeyboardButton> rowInline4 = new ArrayList<>();
+		InlineKeyboardButton button4 = new InlineKeyboardButton();
+		button4.setText("Use a voice-guided Task-Manager");
+		button4.setCallbackData("/task_Manager");
+		rowInline4.add(button4);
+
 		// Add rows to the list
 		rowsInline.add(rowInline1);
 		rowsInline.add(rowInline2);
 		rowsInline.add(rowInline3);
+		rowsInline.add(rowInline4);
 
 		// Set the keyboard to the markup
 		inlineKeyboardMarkup.setKeyboard(rowsInline);

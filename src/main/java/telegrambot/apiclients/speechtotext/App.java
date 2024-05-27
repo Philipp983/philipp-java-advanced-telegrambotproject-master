@@ -2,22 +2,35 @@ package telegrambot.apiclients.speechtotext;
 
 import com.assemblyai.api.AssemblyAI;
 import com.assemblyai.api.resources.transcripts.types.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
-import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import telegrambot.configuration.Config;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.*;
 
 public final class App {
 	private static final String API_KEY = System.getenv("ASSEMBLY_API_KEY");
 	private static final String AUDIO_URL = "https://storage.googleapis.com/aai-web-samples/5_common_sports_injuries.mp3";
-
+	public static final String UPLOAD_URL = "https://api.assemblyai.com/v2/upload";
+	private static final OkHttpClient okClient = new OkHttpClient.Builder()
+			.readTimeout(60, TimeUnit.SECONDS)
+			.build();
+	private static final ObjectMapper objectMapper = new ObjectMapper();
 //	public static void main(String[] args) {
 ////		transcribeAudioToText();
 //	}
@@ -89,6 +102,22 @@ public final class App {
 
 		// Now you can process the voice file as needed
 	}*/
+
+	public static String uploadFile(String path) throws IOException {
+		java.io.File file = new File(path);
+		RequestBody fileBody = RequestBody.create(file, MediaType.parse("application/octet-stream"));
+		Request request = new Request.Builder()
+				.url(UPLOAD_URL)
+				.addHeader("authorization", API_KEY)
+				.post(fileBody)
+				.build();
+
+		try (Response response = okClient.newCall(request).execute()) {
+			if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+			JsonNode jsonResponse = objectMapper.readTree(response.body().string());
+			return jsonResponse.get("upload_url").asText();
+		}
+	}
 
 	public static Optional<String> transcribeAudioToText(String pathToFile) {
 		AssemblyAI client = AssemblyAI.builder()
