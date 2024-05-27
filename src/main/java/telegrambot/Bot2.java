@@ -75,7 +75,7 @@ public class Bot2 extends TelegramLongPollingBot {
 			txt = update.getMessage().getText();
 			System.out.println("The current text from message is: " + txt);
 			System.out.println(txt);
-			if (txt.equals("Back to menu")) {
+			if (txt.equals("/back_to_menu")) {
 				resetFunctionalities();
 				menuUI.clearKeyboard(id);
 				isContaced = false;

@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TranscriptionAPI {
 
-	public static final String API_KEY = System.getenv("ASSEMBLYAI_API_KEY");
+	public static final String API_KEY = System.getenv("ASSEMBLY_AI_API_KEY");
 	public static final String UPLOAD_URL = "https://api.assemblyai.com/v2/upload";
 	public static final String TRANSCRIPT_URL = "https://api.assemblyai.com/v2/transcript";
 	private static final OkHttpClient okClient = new OkHttpClient.Builder()
@@ -21,7 +21,7 @@ public class TranscriptionAPI {
 
 	public static void main(String[] args) {
 		try {
-			String path = "C:\\Users\\niels\\Downloads\\espn-bears.m4a"; // Update the file path here
+			String path = "C:\\Users\\phili\\IdeaProjects\\philipp-java-advanced-telegrambotproject-master\\src\\main\\resources\\voice_recordings\\voiceRecording.ogg"; // Update the file path here
 			String uploadedFileUrl = uploadFile(path);
 			String transcript = getTranscript(uploadedFileUrl);
 			System.out.println("Transcript:\n" + transcript);

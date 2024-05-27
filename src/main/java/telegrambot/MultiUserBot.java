@@ -6,7 +6,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ * The MultiUserBot is used to allow telegram to have different users interacting with the bot, without them having
+ * the same session. this is achieved by checking each id of the user contacting the bot whether that id already exists
+ * as a key in the hashmap, and if not, a new bot instance is created with the id as its key. therefore, each
+ * input
+ */
 public class MultiUserBot extends TelegramLongPollingBot {
     private Map<Long, Bot2> userBots;
     public MultiUserBot() {
